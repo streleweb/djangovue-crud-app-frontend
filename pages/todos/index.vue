@@ -2,14 +2,45 @@
   <v-container>
     <v-row>
       <v-col sm="6" offset-sm="3">
-        <h1>TODOs</h1>
-
+        <v-tabs fixed-tabs background-color="indigo-light" light>
+          <v-tab> by creation-date </v-tab>
+          <v-tab> by priority </v-tab>
+        </v-tabs>
+        <div class="topmargin"></div>
         <v-text-field
           v-model="newTask.title"
           name="taskfield"
           label="Enter a task (hit enter-key)"
+          @input="(event) => (newTaskFieldActive = true)"
           @keypress.enter="addTask()"
         ></v-text-field>
+
+        <v-container v-if="newTaskFieldActive" fluid>
+          <v-row>
+            <v-col cols="12" class="minimize">
+              <v-radio-group v-model="newTask.priority" row>
+                <v-radio
+                  :key="3"
+                  label="low prio"
+                  color="gray"
+                  :value="3"
+                ></v-radio>
+                <v-radio
+                  :key="2"
+                  label="medium prio"
+                  color="blue"
+                  :value="2"
+                ></v-radio>
+                <v-radio
+                  :key="1"
+                  label="high prio"
+                  color="red"
+                  :value="1"
+                ></v-radio>
+              </v-radio-group>
+            </v-col>
+          </v-row>
+        </v-container>
 
         <v-list dense>
           <v-subheader>Tasks</v-subheader>
@@ -69,7 +100,9 @@ export default {
         title: '',
         description: '',
         user: 1,
+        priority: 3,
       },
+      newTaskFieldActive: false,
       editingTask: {},
     }
   },
@@ -88,10 +121,14 @@ export default {
       'patchTask',
     ]),
 
+    setPrio(value) {
+      this.newTask.priority = value
+    },
+
     addTask() {
       this.postNewTask(this.newTask)
-      this.newTask = ''
-      location.reload() // bugfix
+      this.newTask.title = ''
+      this.newTaskFieldActive = false
     },
     editTask(index) {
       this.editingTask = {
@@ -121,4 +158,15 @@ export default {
 </script>
 
 <style>
+.topmargin {
+  margin-top: 3rem;
+}
+
+.minimize {
+  margin-bottom: 0;
+  padding: 0;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+}
 </style>
