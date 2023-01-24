@@ -47,7 +47,7 @@ export default {
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
-    baseURL: '/',
+    baseURL: 'http://localhost:8000',
   },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
@@ -74,14 +74,6 @@ export default {
           //   warning: colors.amber.base,
           //   error: colors.deepOrange.accent4,
           //   success: colors.green.accent3,
-
-          primary: "#3f51b5",
-          secondary: "#009688",
-          accent: "#607d8b",
-          error: "#f44336",
-          warning: "#ff5722",
-          info: "#03a9f4",
-          success: "#8bc34a"
         },
       },
     },

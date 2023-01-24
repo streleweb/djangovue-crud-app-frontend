@@ -17,6 +17,49 @@ $ npm run start
 $ npm run generate
 ```
 
+
+# Drutex CRUD App Frontend (Nuxt/Vue SPA)
+
+## Used Technologies
+
+NuxtJS, VueJS, Vuetify, axios for handling http-requests
+
+
+#### Routes
+
+```http
+    /todos
+```
+
+```http
+    GET, PUT, DELETE: /todos/${taskid}
+```
+##Authentication
+
+```http
+   /login
+```
+```http
+    /register
+```
+```http
+    /verify
+```
+```http
+    /reset-password
+```
+```http
+    /forgot-password
+```
+```http
+    /verify
+```
+
+##settings
+
+```http
+    /settings
+```
 For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
 
 ## Special Directories
