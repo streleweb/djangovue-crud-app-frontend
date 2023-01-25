@@ -2,7 +2,8 @@
 const TODOS = '/todos/'
 
 export const state = () => ({
-    todos: []
+    todos: [],
+    priorityColor: 'red'
 })
 
 export const actions = {
@@ -25,6 +26,9 @@ export const actions = {
     async deleteTask({ commit }, id) {
         await this.$axios.delete(this.$axios.defaults.baseURL.concat(TODOS + id + '/')).then(
             () => commit('remove', id))
+    },
+    sortTasks({ commit }, sortparam) {
+        commit('sort', sortparam)
     }
 }
 
@@ -55,5 +59,24 @@ export const mutations = {
     },
     toggle(state, todo) {
         todo.done = !todo.done
+    },
+    sort(state, sortByField) {
+        if (sortByField === "alpha") {
+            state.todos.sort((a, b) => {
+                const nameA = a.title.toUpperCase();
+                const nameB = b.title.toUpperCase();
+                if (nameA < nameB) {
+                    return -1;
+                }
+                if (nameA > nameB) {
+                    return 1;
+                }
+
+                // names must be equal
+                return 0;
+            })
+        } else if (sortByField === "priority") {
+            state.todos.sort((a, b) => a.priority - b.priority);
+        }
     }
 }

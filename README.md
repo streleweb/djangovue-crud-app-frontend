@@ -34,7 +34,7 @@ NuxtJS, VueJS, Vuetify, axios for handling http-requests
 ```http
     GET, PUT, DELETE: /todos/${taskid}
 ```
-##Authentication
+## Authentication
 
 ```http
    /login
@@ -55,7 +55,7 @@ NuxtJS, VueJS, Vuetify, axios for handling http-requests
     /verify
 ```
 
-##settings
+## settings
 
 ```http
     /settings

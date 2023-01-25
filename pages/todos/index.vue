@@ -3,8 +3,8 @@
     <v-row>
       <v-col sm="6" offset-sm="3">
         <v-tabs fixed-tabs background-color="indigo-light" light>
-          <v-tab> by creation-date </v-tab>
-          <v-tab> by priority </v-tab>
+          <v-tab @click="sort('alpha')"> alphabetically </v-tab>
+          <v-tab @click="sort('priority')"> by priority </v-tab>
         </v-tabs>
         <div class="topmargin"></div>
         <v-text-field
@@ -113,18 +113,13 @@ export default {
     this.getAllTasks()
   },
   methods: {
-    ...mapMutations('todos', ['edit', 'toggle']),
+    ...mapMutations('todos', ['edit', 'toggle', 'sort']),
     ...mapActions('todos', [
       'getAllTasks',
       'postNewTask',
       'deleteTask',
       'patchTask',
     ]),
-
-    setPrio(value) {
-      this.newTask.priority = value
-    },
-
     addTask() {
       this.postNewTask(this.newTask)
       this.newTask.title = ''
@@ -151,7 +146,7 @@ export default {
 
       this.patchTask(taskDataToSave)
       this.cancelEditingTask()
-      location.reload() // bugfix
+      location.reload() // fix later
     },
   },
 }
@@ -168,5 +163,11 @@ export default {
   height: 60px;
   display: flex;
   justify-content: center;
+}
+
+#prioritySquare {
+  height: 10px;
+  width: 10px;
+  display: block;
 }
 </style>
