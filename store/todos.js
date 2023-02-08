@@ -3,33 +3,32 @@ const TODOS = '/todos/'
 
 export const state = () => ({
     todos: [],
-    priorityColor: 'red'
 })
 
 export const actions = {
     async getAllTasks({ commit }) {
         await this.$axios.get(this.$axios.defaults.baseURL.concat(TODOS),
-            { crossdomain: true }
+            { crossdomain: true, headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }
         ).then((response) => commit('set', response.data))
     },
     async postNewTask({ commit }, taskToPost) {
         await this.$axios.post(this.$axios.defaults.baseURL.concat(TODOS),
-            taskToPost
+            taskToPost, { headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }
         ).then((response) => commit('add', response.data))
     },
     async patchTask({ commit }, taskToPatch) {
         const { id, taskData } = taskToPatch
         await this.$axios.patch(this.$axios.defaults.baseURL.concat(TODOS + id + '/'),
-            taskData
+            taskData, { headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }
         ).then(() => commit('edit', taskData))
     },
     async deleteTask({ commit }, id) {
-        await this.$axios.delete(this.$axios.defaults.baseURL.concat(TODOS + id + '/')).then(
+        await this.$axios.delete(this.$axios.defaults.baseURL.concat(TODOS + id + '/'), { headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }).then(
             () => commit('remove', id))
     },
     sortTasks({ commit }, sortparam) {
         commit('sort', sortparam)
-    }
+    },
 }
 
 export const mutations = {
@@ -76,7 +75,16 @@ export const mutations = {
                 return 0;
             })
         } else if (sortByField === "priority") {
-            state.todos.sort((a, b) => a.priority - b.priority);
+            state.todos.sort((a, b) => {
+                if (a.priority === 'lightblue') { a = 3 }
+                else if (a.priority === 'yellow') { a = 2 }
+                else if (a.priority === 'red') { a = 1 }
+                if (b.priority === 'lightblue') { b = 3 }
+                else if (b.priority === 'yellow') { b = 2 }
+                else if (b.priority === 'red') { b = 1 }
+                return a - b
+            })
         }
     }
 }
+

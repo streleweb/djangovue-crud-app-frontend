@@ -1,9 +1,16 @@
 <template>
   <v-app dark>
     <v-app-bar :clipped-left="clipped" fixed app>
-      <v-toolbar-title>{{ title }}</v-toolbar-title>
-      <v-spacer />
-
+      <v-toolbar-title class="mr-15">{{ title }}</v-toolbar-title>
+      <v-text-field
+        class="mr-15"
+        dense
+        outlined
+        background-color="white"
+        placeholder="search for task here..."
+        hide-details
+        append-icon="mdi-magnify"
+      ></v-text-field>
       <v-toolbar-items>
         <v-btn text to="/todos">Todos</v-btn>
         <v-btn text to="/notes">Notes</v-btn>
@@ -28,7 +35,7 @@
       </v-list>
     </v-navigation-drawer>
     <v-footer :absolute="!fixed" app>
-      <span>&copy; {{ new Date().getFullYear() }}</span>
+      <span>&copy; {{ new Date().getFullYear() }} streleweb</span>
     </v-footer>
   </v-app>
 </template>

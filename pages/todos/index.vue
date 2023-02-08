@@ -23,26 +23,35 @@
                   :key="3"
                   label="low prio"
                   color="gray"
-                  :value="3"
+                  value="lightblue"
                 ></v-radio>
                 <v-radio
                   :key="2"
                   label="medium prio"
-                  color="blue"
-                  :value="2"
+                  color="yellow"
+                  value="yellow"
                 ></v-radio>
                 <v-radio
                   :key="1"
                   label="high prio"
                   color="red"
-                  :value="1"
+                  value="red"
                 ></v-radio>
               </v-radio-group>
             </v-col>
           </v-row>
         </v-container>
 
-        <v-list dense>
+        <v-alert
+          v-if="todosempty"
+          outlined
+          type="warning"
+          prominent
+          border="left"
+        >
+          There are currently no tasks in the database!
+        </v-alert>
+        <v-list v-else dense>
           <v-subheader>Tasks</v-subheader>
           <v-list-item-group color="primary">
             <v-list-item v-for="(task, i) in todos" :key="i">
@@ -74,10 +83,24 @@
                   >
                     {{ task.title }}
                     <span>
-                      <v-icon @click.stop="editTask(i)">mdi-pencil</v-icon>
-                      <v-icon @click.stop="removeTask(task.id)"
+                      <v-icon title="edit task" @click.stop="editTask(i)"
+                        >mdi-pencil</v-icon
+                      >
+                      <v-icon
+                        title="remove task"
+                        @click.stop="removeTask(task.id)"
                         >mdi-delete-outline</v-icon
                       >
+                      <v-chip
+                        class="ma-2"
+                        :style="{
+                          backgroundColor: task.priority,
+                          opacity: 0.7,
+                        }"
+                        style="height: 1.5rem"
+                        title="priority"
+                        text-color="white"
+                      />
                     </span>
                   </span>
                 </v-list-item-content>
@@ -100,7 +123,7 @@ export default {
         title: '',
         description: '',
         user: 1,
-        priority: 3,
+        priority: '',
       },
       newTaskFieldActive: false,
       editingTask: {},
@@ -108,6 +131,16 @@ export default {
   },
   computed: {
     ...mapState('todos', ['todos']),
+    ...mapState('user', ['user']),
+    todosempty() {
+      if (this.todos.length === 0 && !this.user.isAuthenticated) return true
+      else return false
+    },
+    authenticated() {
+      if (this.user.isAuthenticated) {
+        return true
+      } else return false
+    },
   },
   created() {
     this.getAllTasks()
@@ -153,6 +186,10 @@ export default {
 </script>
 
 <style>
+::selection {
+  color: blue;
+}
+
 .topmargin {
   margin-top: 3rem;
 }
