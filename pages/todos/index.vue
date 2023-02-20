@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-row>
+    <v-row v-if="authenticated">
       <v-col sm="6" offset-sm="3">
         <v-tabs fixed-tabs background-color="indigo-light" light>
           <v-tab @click="sort('alpha')"> alphabetically </v-tab>
@@ -110,6 +110,16 @@
         </v-list>
       </v-col>
     </v-row>
+    <v-alert
+      v-if="!authenticated"
+      outlined
+      type="warning"
+      prominent
+      border="left"
+    >
+      Can`t view tasks, you are not logged in!
+      <v-btn to="/login" class="ml-2">Login</v-btn>
+    </v-alert>
   </v-container>
 </template>
 
@@ -133,13 +143,12 @@ export default {
     ...mapState('todos', ['todos']),
     ...mapState('user', ['user']),
     todosempty() {
-      if (this.todos.length === 0 && !this.user.isAuthenticated) return true
+      if (this.todos.length === 0 && this.user.isAuthenticated) return true
       else return false
     },
     authenticated() {
-      if (this.user.isAuthenticated) {
-        return true
-      } else return false
+      if (localStorage.getItem('token')) return true
+      else return false
     },
   },
   created() {

@@ -1,5 +1,6 @@
 // BASEURL AXIOS in nuct.config.js
-const REGISTERURL = '/register/'
+const USERSURL = '/users/'
+const USERPROFILE = '/userprofile/'
 const LOGINURL = '/login/'
 const MANAGEUSERURL = '/myuser/'
 
@@ -7,13 +8,22 @@ export const state = () => ({
     user: {
         "id": Number,
         "email": String,
-        "isAuthenticated": false,
+        "isAuthenticated": null,
+        userProfile: {
+            first_name: "",
+            last_name: "",
+            image: USERSURL + "default_user_profile.png",
+            facebook_profile: "",
+            linkedin_profile: "",
+            website: "",
+        },
     },
 })
 
 export const actions = {
+    // USER ACTIONS
     async registerNewUser({ commit }, userData) {
-        await this.$axios.post(this.$axios.defaults.baseURL.concat(REGISTERURL),
+        await this.$axios.post(this.$axios.defaults.baseURL.concat(USERSURL),
             userData
         ).then((response) => commit('register', response.data))
     },
@@ -31,7 +41,9 @@ export const actions = {
     async deleteUser({ commit }, id) {
         await this.$axios.delete(this.$axios.defaults.baseURL.concat(MANAGEUSERURL + id + '/')).then(
             () => commit('remove', id))
-    }
+    },
+    // USERPROFILE ACTIONS
+
 }
 
 export const mutations = {

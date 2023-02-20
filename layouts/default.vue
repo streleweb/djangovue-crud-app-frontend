@@ -15,25 +15,33 @@
         <v-btn text to="/todos">Todos</v-btn>
         <v-btn text to="/notes">Notes</v-btn>
       </v-toolbar-items>
-      <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-        <v-icon>mdi-menu</v-icon>
-      </v-btn>
+      <!-- START STATUSBAR -->
+      <v-container class="resize ml-5">
+        <v-row class="resize">
+          <div class="mx-3"></div>
+
+          <v-badge
+            bordered
+            bottom
+            color="green accent-4"
+            dot
+            offset-x="10"
+            offset-y="10"
+          >
+            <v-avatar size="40">
+              <v-img src="https://cdn.vuetifyjs.com/images/lists/2.jpg"></v-img>
+            </v-avatar>
+          </v-badge>
+        </v-row>
+      </v-container>
+      <v-icon class="ml-5">mdi-logout</v-icon>
+      <!-- END STATUSBAR -->
     </v-app-bar>
     <v-main>
       <v-container>
         <Nuxt />
       </v-container>
     </v-main>
-    <v-navigation-drawer v-model="rightDrawer" :right="right" temporary fixed>
-      <v-list>
-        <v-list-item @click.native="right = !right">
-          <v-list-item-action>
-            <v-icon light> mdi-repeat </v-icon>
-          </v-list-item-action>
-          <v-list-item-title>Switch drawer (click me)</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
     <v-footer :absolute="!fixed" app>
       <span>&copy; {{ new Date().getFullYear() }} streleweb</span>
     </v-footer>
@@ -68,3 +76,10 @@ export default {
   },
 }
 </script>
+
+<style>
+.resize {
+  width: 40px;
+  height: 40px;
+}
+</style>
