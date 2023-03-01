@@ -2,22 +2,24 @@
 const USERSURL = '/users/'
 const USERPROFILE = '/userprofile/'
 const LOGINURL = '/login/'
-const MANAGEUSERURL = '/myuser/'
+const MYUSERURL = '/myuser/'
 
 export const state = () => ({
     user: {
-        "id": Number,
-        "email": String,
-        "isAuthenticated": null,
-        userProfile: {
-            first_name: "",
-            last_name: "",
-            image: USERSURL + "default_user_profile.png",
-            facebook_profile: "",
-            linkedin_profile: "",
-            website: "",
-        },
+        "id": -1,
+        "email": "",
+        "isAuthenticated": false,
+        "isActive": false,
+
     },
+    userprofile: {
+        "first_name": "",
+        "last_name": "",
+        "facebook_profile": "",
+        "website": "",
+        "image": "",
+    },
+
 })
 
 export const actions = {
@@ -32,17 +34,38 @@ export const actions = {
             userData
         ).then((response) => commit('login', response.data))
     },
+    async getUserById({ commit }, id) {
+        await this.$axios.get(this.$axios.defaults.baseURL.concat(USERSURL + id),
+            { crossdomain: true, headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }
+        ).then((response) => commit('set', response.data))
+    },
+    async getMyUser({ commit }) {
+        await this.$axios.get(this.$axios.defaults.baseURL.concat(MYUSERURL),
+            { crossdomain: true, headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }
+        ).then((response) => commit('setMyUser', response.data))
+    },
     async updateUser({ commit }, userData) {
         const { id, email } = userData
-        await this.$axios.patch(this.$axios.defaults.baseURL.concat(MANAGEUSERURL + id + '/'),
+        await this.$axios.patch(this.$axios.defaults.baseURL.concat(MYUSERURL + id + '/'),
             email
         ).then(() => commit('set', userData))
     },
     async deleteUser({ commit }, id) {
-        await this.$axios.delete(this.$axios.defaults.baseURL.concat(MANAGEUSERURL + id + '/')).then(
+        await this.$axios.delete(this.$axios.defaults.baseURL.concat(MYUSERURL + id + '/')).then(
             () => commit('remove', id))
     },
     // USERPROFILE ACTIONS
+    async getUserProfile({ commit }, id) {
+        await this.$axios.get(this.$axios.defaults.baseURL.concat(USERSURL + id + USERPROFILE),
+            { crossdomain: true, headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }
+        ).then((response) => commit('set', response.data))
+    },
+
+    async updateUserProfile({ commit }, id, userDataAndProfileData) {
+        await this.$axios.patch(this.$axios.defaults.baseURL.concat(USERSURL + id + USERPROFILE),
+            { crossdomain: true, headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }, userDataAndProfileData
+        ).then((response) => commit('set', response.data))
+    }
 
 }
 
@@ -58,18 +81,51 @@ export const mutations = {
         if (userData.token) {
             localStorage.setItem('token', userData.token)
             state.user = userData
+            state.user.id = userData.id
             state.user.isAuthenticated = true;
         }
-        else state.user.isAuthenticated = false;
     },
-    edit(state, userData) {
+    set(state, userData) {
         state.user = userData
+    },
+    setMyUser(state, userData) {
+        if (!userData.userprofile.image) {
+            userData.userprofile.image = "https://gravatar.com/avatar/b58996c504c5638798eb6b511e6f49af?s=200&d=mp&r=x"
+        }
+
+        state.user.id = userData.id
+        state.user.email = userData.email
+
+        if (userData.userprofile) {
+            console.log(userData.userprofile)
+            if (userData.userprofile.first_name.length > 1) state.userprofile.first_name = userData.userprofile.first_name
+            if (userData.userprofile.last_name.length > 1) state.userprofile.last_name = userData.userprofile.last_name
+            if (userData.userprofile.facebook_profile.length > 5) state.userprofile.facebook_profile = userData.userprofile.facebook_profile
+            if (userData.userprofile.website.length > 3) state.userprofile.website = userData.userprofile.website
+            if (userData.userprofile.image.length > 3) state.userprofile.image = userData.userprofile.image
+        }
+
+        // if (state.user.userprofile.image === null) {
+        //     state.user.userprofile.image = "https://gravatar.com/avatar/b58996c504c5638798eb6b511e6f49af?s=200&d=mp&r=x"
+        // }
+    },
+    setIsAuthToFalse(state) {
+        state.user.isAuthenticated = false
     },
     remove(state) {
         state.user = {}
     },
     toggle(state, todo) {
         todo.done = !todo.done
+    }
+}
+
+export const getters = {
+    getUser(state) {
+        return state.user
+    },
+    getUserProfile(state) {
+        return state.user.userprofile
     }
 }
 

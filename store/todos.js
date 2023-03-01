@@ -2,7 +2,10 @@
 const TODOS = '/todos/'
 
 export const state = () => ({
-    todos: [],
+    todos: [
+        { "id": -1, "priority": "", "completed": false, }
+    ],
+    searchString: ''
 })
 
 export const actions = {
@@ -16,11 +19,17 @@ export const actions = {
             taskToPost, { headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }
         ).then((response) => commit('add', response.data))
     },
-    async patchTask({ commit }, taskToPatch) {
+    async patchTaskText({ commit }, taskToPatch) {
         const { id, taskData } = taskToPatch
         await this.$axios.patch(this.$axios.defaults.baseURL.concat(TODOS + id + '/'),
             taskData, { headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }
         ).then(() => commit('edit', taskData))
+    },
+    async patchTask({ commit }, taskToPatch) {
+        const { id } = taskToPatch
+        await this.$axios.patch(this.$axios.defaults.baseURL.concat(TODOS + id + '/'),
+            taskToPatch, { headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }
+        ).then(() => commit('editWithId', id, taskToPatch))
     },
     async deleteTask({ commit }, id) {
         await this.$axios.delete(this.$axios.defaults.baseURL.concat(TODOS + id + '/'), { headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }).then(
@@ -50,14 +59,28 @@ export const mutations = {
         }
         state.todos.splice(index, 1, updatedTask)
     },
+    editWithId(state, id, taskToEdit) {
+        const taskId = id
+        const task = taskToEdit
+
+        const index = state.todos.findIndex(task => {
+            return task.id === taskId
+        })
+        const updatedTask = {
+            ...state.todos[index],
+            ...task
+        }
+        state.todos.splice(index, 1, updatedTask)
+    },
     remove(state, id) {
         const index = state.todos.findIndex(task => {
             return task.id === id
         })
         state.todos.splice(index, 1)
     },
-    toggle(state, todo) {
-        todo.done = !todo.done
+    toggleTaskCompleted(state, taskId) {
+        const task = state.todos.find(t => t.id === taskId);
+        task.completed = !task.completed;
     },
     sort(state, sortByField) {
         if (sortByField === "alpha") {
@@ -85,6 +108,15 @@ export const mutations = {
                 return a - b
             })
         }
+    },
+    updateSearchString(state, sString) {
+        state.searchString = sString
+    }
+}
+
+export const getters = {
+    getTaskById(state, taskId) {
+        return state.todos.find(t => t.id === taskId)
     }
 }
 

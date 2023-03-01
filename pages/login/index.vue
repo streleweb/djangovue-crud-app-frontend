@@ -28,7 +28,7 @@
       </v-col>
     </v-row>
     <v-alert
-      v-if="loginSuccessful"
+      v-if="user.isAuthenticated"
       outlined
       class="mt-5"
       type="success"
@@ -50,7 +50,6 @@ export default {
         email: '',
         password: '',
       },
-      tokenIsStored: false,
     }
   },
   computed: {
@@ -60,15 +59,22 @@ export default {
       else return false
     },
   },
+  created() {
+    if (localStorage.getItem('token')) {
+      localStorage.removeItem('token')
+    }
+  },
   methods: {
-    ...mapActions('user', ['loginUser']),
+    ...mapActions('user', ['loginUser', 'getMyUser']),
 
     login() {
-      this.loginUser(this.currentUserLoginForm)
-      if (localStorage.getItem('token')) {
-        this.tokenIsStored = true
-        setTimeout(() => this.$router.push({ path: '/todos' }), 5000)
-      } else this.tokenIsStored = false
+      this.loginUser(this.currentUserLoginForm).then(() => {
+        if (this.user.isAuthenticated) {
+          this.getMyUser()
+          document.getElementById('usercontainer').style.display = 'block'
+          setTimeout(() => this.$router.push({ path: '/todos' }), 5000)
+        }
+      })
     },
   },
 }

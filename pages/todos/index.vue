@@ -14,6 +14,7 @@
           @input="(event) => (newTaskFieldActive = true)"
           @keypress.enter="addTask()"
         ></v-text-field>
+        <v-btn v-if="newTaskFieldActive" @click="addTask()">Save</v-btn>
 
         <v-container v-if="newTaskFieldActive" fluid>
           <v-row>
@@ -54,10 +55,17 @@
         <v-list v-else dense>
           <v-subheader>Tasks</v-subheader>
           <v-list-item-group color="primary">
-            <v-list-item v-for="(task, i) in todos" :key="i">
-              <template #default="{ active }">
+            <v-list-item v-for="(task, i) in visibleTodos" :key="i">
+              <template #default="{}">
                 <v-list-item-action>
-                  <v-checkbox :input-value="active"></v-checkbox>
+                  <input
+                    type="checkbox"
+                    style="cursor: pointer"
+                    :checked="task.completed"
+                    multiple
+                    @change="toggleTaskCompletedAndPatchTask(task)"
+                  />
+                  <!-- <v-checkbox :input-value="active"></v-checkbox> -->
                 </v-list-item-action>
 
                 <v-list-item-content>
@@ -132,7 +140,7 @@ export default {
       newTask: {
         title: '',
         description: '',
-        user: 1,
+        user: Number,
         priority: '',
       },
       newTaskFieldActive: false,
@@ -140,8 +148,10 @@ export default {
     }
   },
   computed: {
-    ...mapState('todos', ['todos']),
+    ...mapState('todos', ['todos', 'searchString']),
     ...mapState('user', ['user']),
+    // ...mapGetters('todos', ['getTaskById']),
+
     todosempty() {
       if (this.todos.length === 0 && this.user.isAuthenticated) return true
       else return false
@@ -150,18 +160,39 @@ export default {
       if (localStorage.getItem('token')) return true
       else return false
     },
+    filteredTodos() {
+      return this.todos.filter((todo) =>
+        todo.title.toLowerCase().includes(this.searchString.toLowerCase())
+      )
+    },
+    // if nothing is being searched for, show all todos from state
+    // else show the filtered ones
+    visibleTodos() {
+      return this.searchString ? this.filteredTodos : this.todos
+    },
   },
   created() {
     this.getAllTasks()
+    this.assignUserIdToNewTask()
   },
   methods: {
-    ...mapMutations('todos', ['edit', 'toggle', 'sort']),
+    ...mapMutations('todos', ['edit', 'toggleTaskCompleted', 'sort']),
     ...mapActions('todos', [
       'getAllTasks',
       'postNewTask',
       'deleteTask',
       'patchTask',
+      'patchTaskText',
     ]),
+    ...mapActions('user', ['getMyUser']),
+    assignUserIdToNewTask() {
+      this.newTask.user = this.user.id
+    },
+    toggleTaskCompletedAndPatchTask(task) {
+      this.toggleTaskCompleted(task.id)
+      const taskFromState = this.todos.find((t) => t.id === task.id)
+      this.patchTask(taskFromState)
+    },
     addTask() {
       this.postNewTask(this.newTask)
       this.newTask.title = ''
@@ -186,7 +217,7 @@ export default {
       // delete id from taskData
       delete taskDataToSave.taskData.id
 
-      this.patchTask(taskDataToSave)
+      this.patchTaskText(taskDataToSave)
       this.cancelEditingTask()
       location.reload() // fix later
     },
