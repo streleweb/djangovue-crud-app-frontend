@@ -1,42 +1,49 @@
 <template>
   <v-container>
-    <v-row>
+    <v-row v-if="authenticated">
       <v-col cols="12" md="4">
-        <v-avatar size="1">
-          <img :src="userprofile.image" />
+        <v-avatar size="20rem" class="mt-10">
+          <v-img :src="userprofile.image" alt="John"></v-img>
         </v-avatar>
-        <v-file-input
-          ref="fileInput"
-          v-model="selectedFile"
-          label="Upload profile image"
-        ></v-file-input>
       </v-col>
       <v-col cols="12" md="8">
-        <v-form ref="form">
+        <v-form @submit.prevent="submitForm()">
+          <v-subheader class="text-h4 mb-8 ml-0 pl-0"
+            >Change User Information</v-subheader
+          >
+          <input
+            id="imageFileInput"
+            type="file"
+            label="Upload profile image"
+            @change="convertAndPost($event)"
+          />
           <v-text-field
-            v-model="userprofile.first_name"
-            label="First Name"
+            v-model="currentPayload.userprofile.first_name"
+            label="First Name - required Field"
           ></v-text-field>
           <v-text-field
-            v-model="userprofile.last_name"
-            label="Last Name"
+            v-model="currentPayload.userprofile.last_name"
+            label="Last Name - required Field"
           ></v-text-field>
           <v-text-field
-            v-model="userprofile.facebook_profile"
-            label="Facebook Profile"
-          ></v-text-field>
-          <v-text-field
-            v-model="userprofile.linkedin_profile"
-            label="LinkedIn Profile"
-          ></v-text-field>
-          <v-text-field
-            v-model="userprofile.website"
-            label="Website"
-          ></v-text-field>
-          <v-btn @click="submitForm">Save Changes</v-btn>
+            v-model="currentPayload.password"
+            label="Password - required to make changes"
+            type="password"
+          />
+          <v-btn type="submit">Save changes</v-btn>
         </v-form>
       </v-col>
     </v-row>
+    <v-alert
+      v-if="!authenticated"
+      outlined
+      type="warning"
+      prominent
+      border="left"
+    >
+      Can`t view site, you are not logged in!
+      <v-btn to="/login" class="ml-2">Login</v-btn>
+    </v-alert>
   </v-container>
 </template>
 <script>
@@ -45,57 +52,91 @@ import { mapMutations, mapState, mapActions } from 'vuex'
 export default {
   data() {
     return {
-      selectedFile: null,
+      currentPayload: {
+        email: '',
+        password: '',
+        userprofile: {
+          image: '',
+          first_name: '',
+          last_name: '',
+        },
+      },
+      selectedImage: null,
     }
   },
   computed: {
-    ...mapState('user', ['user', 'userprofile']),
+    ...mapState('user', ['user']),
+    ...mapState('user', ['userprofile']),
+    authenticated() {
+      if (localStorage.getItem('token')) return true
+      else return false
+    },
   },
 
   created() {
-    this.getMyUser()
+    try {
+      this.getMyUser()
+      this.setIsAuthToTrue()
+      this.currentPayload.email = this.user.email
+      this.currentPayload.userprofile.first_name = this.userprofile.first_name
+      this.currentPayload.userprofile.last_name = this.userprofile.last_name
+    } catch (error) {
+      alert('Not authenticated!')
+    }
   },
 
   methods: {
-    ...mapMutations('user', ['edit']),
+    ...mapMutations('user', ['edit', 'setIsAuthToTrue']),
     ...mapActions('user', ['getMyUser', 'updateUserProfile']),
-    // async uploadImage() {
-    //   const formData = new FormData()
-    //   formData.append('image', this.selectedFile)
-    //   const config = {
-    //     headers: {
-    //       'content-type': 'multipart/form-data'
-    //     }
-    //   }
-    //   try {
-    //     const response = await this.$axios.post('/userprofile/image', formData, config)
-    //     this.userprofile.image = response.data.image
-    //   } catch (error) {
-    //     console.error(error)
-    //   }
-    // },
-    async submitForm() {
-      const id = this.userprofile.id
-      const userDataAndProfileData = {
-        email: this.user.email,
-        first_name: this.userprofile.first_name,
-        last_name: this.userprofile.last_name,
-        facebook_profile: this.userprofile.facebook_profile,
-        linkedin_profile: this.userprofile.linkedin_profile,
-        website: this.userprofile.website,
-        image: this.selectedFile,
-      }
+
+    submitForm() {
       try {
-        await this.updateUserProfile(
-          id,
-          userDataAndProfileData,
-          this.selectedFile
-        )
-        this.$refs.form.reset()
-        this.$refs.fileInput.reset()
-      } catch (error) {
-        console.error(error)
+        this.updateUserProfile(this.currentPayload)
+      } catch (error) {}
+    },
+    isImageFile(file) {
+      return file.type.startsWith('image/')
+    },
+    async postImageToExternalAPI(convertedImage) {
+      const APIURL = 'https://api.imgbb.com/1/upload'
+      const URLAPIKEY = '?expiration=600&key=9ce3438bbab9147ab4bd78382ed49383'
+      const formData = new FormData()
+      console.log('conv inside' + convertedImage)
+      formData.append('image', convertedImage)
+
+      await this.$axios
+        .post(APIURL + URLAPIKEY, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          console.log(response.data)
+          this.currentPayload.userprofile.image = response.data.data.url
+        })
+    },
+
+    convertToBase64AndPostToAPI(file) {
+      const reader = new FileReader()
+      let convertedFile = null
+
+      reader.onloadend = () => {
+        // strip off mime
+        convertedFile = reader.result.split(',')[1]
+        this.postImageToExternalAPI(convertedFile)
       }
+      reader.readAsDataURL(file)
+    },
+    convertAndPost(event) {
+      const file = event.target.files[0]
+
+      // Check if the selected file is an image
+      if (!this.isImageFile(file)) {
+        alert('Please select an image file.')
+        return
+      }
+      // Convert the selected image to base64
+      this.convertToBase64AndPostToAPI(file)
     },
   },
 }

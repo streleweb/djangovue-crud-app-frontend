@@ -157,8 +157,11 @@ export default {
       else return false
     },
     authenticated() {
-      if (localStorage.getItem('token')) return true
-      else return false
+      if (localStorage.getItem('token')) {
+        return true
+      } else {
+        return false
+      }
     },
     filteredTodos() {
       return this.todos.filter((todo) =>
@@ -172,6 +175,7 @@ export default {
     },
   },
   created() {
+    this.getMyUser()
     this.getAllTasks()
     this.assignUserIdToNewTask()
   },
@@ -186,7 +190,9 @@ export default {
     ]),
     ...mapActions('user', ['getMyUser']),
     assignUserIdToNewTask() {
-      this.newTask.user = this.user.id
+      if (!this.user.id === 1) this.newTask.user = this.user.id
+      else if (localStorage.getItem('id'))
+        this.newTask.user = localStorage.getItem('id')
     },
     toggleTaskCompletedAndPatchTask(task) {
       this.toggleTaskCompleted(task.id)

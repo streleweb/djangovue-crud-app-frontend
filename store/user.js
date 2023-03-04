@@ -1,4 +1,4 @@
-// BASEURL AXIOS in nuct.config.js
+// BASEURL AXIOS in nuxt.config.js
 const USERSURL = '/users/'
 const USERPROFILE = '/userprofile/'
 const LOGINURL = '/login/'
@@ -15,8 +15,8 @@ export const state = () => ({
     userprofile: {
         "first_name": "",
         "last_name": "",
-        "facebook_profile": "",
-        "website": "",
+        // "facebook_profile": "",
+        // "website": "",
         "image": "",
     },
 
@@ -44,14 +44,36 @@ export const actions = {
             { crossdomain: true, headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }
         ).then((response) => commit('setMyUser', response.data))
     },
-    async updateUser({ commit }, userData) {
-        const { id, email } = userData
-        await this.$axios.patch(this.$axios.defaults.baseURL.concat(MYUSERURL + id + '/'),
-            email
-        ).then(() => commit('set', userData))
+    async updateUser({ commit, state }, payload) {
+        await this.$axios.put(
+            this.$axios.defaults.baseURL.concat(USERSURL + state.user.id + '/'),
+            payload,
+            {
+                crossdomain: true,
+                headers: {
+                    Authorization: `Token ${localStorage.getItem('token')}`,
+                    'Content-Type': 'Application/json',
+                },
+            }
+        ).then(() => commit('setMyUser', payload));
     },
+    async updateUserProfile({ commit }, payload) {
+        await this.$axios.put(
+            this.$axios.defaults.baseURL.concat(MYUSERURL),
+            payload,
+            {
+                crossdomain: true,
+                headers: {
+                    Authorization: `Token ${localStorage.getItem('token')}`,
+                    'Content-Type': 'Application/json',
+                },
+            }
+        ).then(() => commit('setMyUser', payload));
+    },
+
+
     async deleteUser({ commit }, id) {
-        await this.$axios.delete(this.$axios.defaults.baseURL.concat(MYUSERURL + id + '/')).then(
+        await this.$axios.delete(this.$axios.defaults.baseURL.concat(USERSURL + id + '/')).then(
             () => commit('remove', id))
     },
     // USERPROFILE ACTIONS
@@ -60,12 +82,6 @@ export const actions = {
             { crossdomain: true, headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }
         ).then((response) => commit('set', response.data))
     },
-
-    async updateUserProfile({ commit }, id, userDataAndProfileData) {
-        await this.$axios.patch(this.$axios.defaults.baseURL.concat(USERSURL + id + USERPROFILE),
-            { crossdomain: true, headers: { 'Authorization': `Token ${localStorage.getItem('token')}` } }, userDataAndProfileData
-        ).then((response) => commit('set', response.data))
-    }
 
 }
 
@@ -82,6 +98,8 @@ export const mutations = {
             localStorage.setItem('token', userData.token)
             state.user = userData
             state.user.id = userData.id
+            // for safety
+            localStorage.setItem('id', userData.id)
             state.user.isAuthenticated = true;
         }
     },
@@ -96,28 +114,37 @@ export const mutations = {
         state.user.id = userData.id
         state.user.email = userData.email
 
-        if (userData.userprofile) {
-            console.log(userData.userprofile)
-            if (userData.userprofile.first_name.length > 1) state.userprofile.first_name = userData.userprofile.first_name
-            if (userData.userprofile.last_name.length > 1) state.userprofile.last_name = userData.userprofile.last_name
-            if (userData.userprofile.facebook_profile.length > 5) state.userprofile.facebook_profile = userData.userprofile.facebook_profile
-            if (userData.userprofile.website.length > 3) state.userprofile.website = userData.userprofile.website
-            if (userData.userprofile.image.length > 3) state.userprofile.image = userData.userprofile.image
+        if (userData) {
+            state.user.isAuthenticated = true
         }
 
-        // if (state.user.userprofile.image === null) {
-        //     state.user.userprofile.image = "https://gravatar.com/avatar/b58996c504c5638798eb6b511e6f49af?s=200&d=mp&r=x"
-        // }
+        if (userData.userprofile) {
+            // console.log(userData.userprofile)
+            if (userData.userprofile.first_name) state.userprofile.first_name = userData.userprofile.first_name
+            if (userData.userprofile.last_name) state.userprofile.last_name = userData.userprofile.last_name
+            if (userData.userprofile.facebook_profile) state.userprofile.facebook_profile = userData.userprofile.facebook_profile
+            if (userData.userprofile.website) state.userprofile.website = userData.userprofile.website
+            if (userData.userprofile.image) state.userprofile.image = userData.userprofile.image
+        }
     },
     setIsAuthToFalse(state) {
         state.user.isAuthenticated = false
     },
+    setIsAuthToTrue(state) {
+        state.user.isAuthenticated = true
+    },
     remove(state) {
         state.user = {}
     },
-    toggle(state, todo) {
-        todo.done = !todo.done
-    }
+    updateFirstName(state, firstNamePayload) {
+        state.userprofile.first_name = firstNamePayload
+    },
+    updateLastName(state, lastNamePayload) {
+        state.userprofile.last_name = lastNamePayload
+    },
+    updateImage(state, image) {
+        state.userprofile.image = image
+    },
 }
 
 export const getters = {
@@ -125,7 +152,7 @@ export const getters = {
         return state.user
     },
     getUserProfile(state) {
-        return state.user.userprofile
+        return state.userprofile
     }
 }
 

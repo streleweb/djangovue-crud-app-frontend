@@ -15,34 +15,36 @@
       />
       <v-toolbar-items>
         <v-btn text to="/todos">Todos</v-btn>
-        <v-btn text to="/notes">Notes</v-btn>
+        <!-- <v-btn text to="/notes">Notes</v-btn> -->
       </v-toolbar-items>
       <!-- START STATUSBAR -->
-      <v-container
-        v-if="user.isAuthenticated"
-        id="usercontainer"
-        class="resize ml-5"
-      >
-        <v-row class="resize">
-          <div class="mx-3"></div>
-
-          <v-badge
-            bordered
-            bottom
-            color="green accent-4"
-            dot
-            offset-x="10"
-            offset-y="10"
-          >
-            <v-avatar size="40">
-              <v-img :src="userprofile.image"></v-img>
-            </v-avatar>
-          </v-badge>
-        </v-row>
-        <v-icon class="ml-6" style="cursor: pointer" @click="logout"
-          >mdi-logout</v-icon
+      <router-link to="/userprofile">
+        <v-container
+          v-if="user.isAuthenticated"
+          id="usercontainer"
+          class="resize ml-5"
         >
-      </v-container>
+          <v-row class="resize">
+            <div class="mx-3"></div>
+
+            <v-badge
+              bordered
+              bottom
+              color="green accent-4"
+              dot
+              offset-x="10"
+              offset-y="10"
+            >
+              <v-avatar size="40">
+                <v-img :src="userprofile.image"></v-img>
+              </v-avatar>
+            </v-badge>
+          </v-row>
+          <v-icon class="ml-6" style="cursor: pointer" @click="logout"
+            >mdi-logout</v-icon
+          >
+        </v-container></router-link
+      >
 
       <!-- END STATUSBAR -->
     </v-app-bar>
@@ -117,9 +119,10 @@ export default {
 
     logout() {
       localStorage.removeItem('token')
+      localStorage.removeItem('id')
       this.setUserAuthFalse()
       document.getElementById('usercontainer').style.display = 'none'
-      this.$router.push({ path: '/login' })
+      setTimeout(() => this.$router.push({ path: '/login' }), 1000)
     },
 
     updateMyUser() {

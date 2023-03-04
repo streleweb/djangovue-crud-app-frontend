@@ -59,10 +59,14 @@ export default {
       else return false
     },
   },
-  created() {
-    if (localStorage.getItem('token')) {
-      localStorage.removeItem('token')
+  mounted() {
+    if (this.user.isAuthenticated) {
+      this.$router.push({ path: '/todos' })
     }
+    // if (localStorage.getItem('token')) {
+    //   this.user.isAuthenticated = false
+    //   localStorage.removeItem('token')
+    // }
   },
   methods: {
     ...mapActions('user', ['loginUser', 'getMyUser']),
