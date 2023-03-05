@@ -70,7 +70,7 @@
 
                 <v-list-item-content>
                   <span
-                    v-if="editingTask.id === task.id"
+                    v-if="editingTask.id === task.id && isInEditMode"
                     class="d-flex justify-space-between align-center"
                   >
                     <v-text-field
@@ -145,6 +145,7 @@ export default {
       },
       newTaskFieldActive: false,
       editingTask: {},
+      editActive: false,
     }
   },
   computed: {
@@ -157,11 +158,7 @@ export default {
       else return false
     },
     authenticated() {
-      if (localStorage.getItem('token')) {
-        return true
-      } else {
-        return false
-      }
+      return this.user.isAuthenticated
     },
     filteredTodos() {
       return this.todos.filter((todo) =>
@@ -172,6 +169,9 @@ export default {
     // else show the filtered ones
     visibleTodos() {
       return this.searchString ? this.filteredTodos : this.todos
+    },
+    isInEditMode() {
+      return this.editActive
     },
   },
   created() {
@@ -208,24 +208,25 @@ export default {
       this.editingTask = {
         ...this.todos[index],
       }
+      this.editActive = true
     },
     removeTask(taskId) {
       this.deleteTask(taskId)
+      this.editActive = false
     },
     cancelEditingTask() {
       this.editingTask = {}
+      this.editActive = false
     },
     saveEdit() {
       const taskDataToSave = {
         id: this.editingTask.id,
         taskData: this.editingTask,
       }
-      // delete id from taskData
-      delete taskDataToSave.taskData.id
 
       this.patchTaskText(taskDataToSave)
-      this.cancelEditingTask()
-      location.reload() // fix later
+      this.editActive = false
+      location.reload()
     },
   },
 }

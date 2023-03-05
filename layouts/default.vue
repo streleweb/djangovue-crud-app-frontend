@@ -18,12 +18,13 @@
         <!-- <v-btn text to="/notes">Notes</v-btn> -->
       </v-toolbar-items>
       <!-- START STATUSBAR -->
-      <router-link to="/userprofile">
-        <v-container
-          v-if="user.isAuthenticated"
-          id="usercontainer"
-          class="resize ml-5"
-        >
+
+      <v-container
+        v-if="user.isAuthenticated"
+        id="usercontainer"
+        class="resize ml-5"
+      >
+        <router-link to="/userprofile">
           <v-row class="resize">
             <div class="mx-3"></div>
 
@@ -40,11 +41,11 @@
               </v-avatar>
             </v-badge>
           </v-row>
-          <v-icon class="ml-6" style="cursor: pointer" @click="logout"
-            >mdi-logout</v-icon
-          >
-        </v-container></router-link
-      >
+        </router-link>
+        <v-icon class="ml-6 mt-2" style="cursor: pointer" @click="logout"
+          >mdi-logout</v-icon
+        >
+      </v-container>
 
       <!-- END STATUSBAR -->
     </v-app-bar>
@@ -102,7 +103,7 @@ export default {
   },
 
   created() {
-    this.updateMyUser()
+    // this.updateMyUser()
   },
 
   methods: {
@@ -113,15 +114,36 @@ export default {
       this.updateSearchString(this.searchStringChanged)
     },
 
-    setUserAuthFalse() {
-      this.setIsAuthToFalse()
-    },
-
     logout() {
       localStorage.removeItem('token')
       localStorage.removeItem('id')
-      this.setUserAuthFalse()
+      this.setIsAuthToFalse()
       document.getElementById('usercontainer').style.display = 'none'
+
+      this.$swal('Success!', 'Logged Out!')
+      let timerInterval
+      this.$swal
+        .fire({
+          title: 'Logged out!',
+          timer: 1000,
+          timerProgressBar: true,
+          didOpen: () => {
+            this.$swal.showLoading()
+            const b = this.$swal.getHtmlContainer().querySelector('b')
+            timerInterval = setInterval(() => {
+              b.textContent = this.$swal.getTimerLeft()
+            }, 100)
+          },
+          willClose: () => {
+            clearInterval(timerInterval)
+          },
+        })
+        .then((result) => {
+          if (result.dismiss === this.$swal.DismissReason.timer) {
+            console.log('I was closed by the timer')
+          }
+        })
+
       setTimeout(() => this.$router.push({ path: '/login' }), 1000)
     },
 
@@ -138,3 +160,5 @@ export default {
   height: 40px;
 }
 </style>
+
+

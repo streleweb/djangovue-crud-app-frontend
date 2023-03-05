@@ -11,10 +11,12 @@
           <v-subheader class="text-h4 mb-8 ml-0 pl-0"
             >Change User Information</v-subheader
           >
+          <h4 class="mb-3">User-avatar Image</h4>
           <input
             id="imageFileInput"
             type="file"
             label="Upload profile image"
+            class="mb-7"
             @change="convertAndPost($event)"
           />
           <v-text-field
@@ -30,6 +32,7 @@
             label="Password - required to make changes"
             type="password"
           />
+
           <v-btn type="submit">Save changes</v-btn>
         </v-form>
       </v-col>
@@ -74,15 +77,13 @@ export default {
   },
 
   created() {
-    try {
-      this.getMyUser()
-      this.setIsAuthToTrue()
-      this.currentPayload.email = this.user.email
-      this.currentPayload.userprofile.first_name = this.userprofile.first_name
-      this.currentPayload.userprofile.last_name = this.userprofile.last_name
-    } catch (error) {
-      alert('Not authenticated!')
-    }
+    this.getMyUser()
+    this.setIsAuthToTrue()
+    this.currentPayload.email = this.user.email
+    // for safety, somehow probs with state
+    localStorage.setItem('email', this.user.email)
+    this.currentPayload.userprofile.first_name = this.userprofile.first_name
+    this.currentPayload.userprofile.last_name = this.userprofile.last_name
   },
 
   methods: {
@@ -90,9 +91,10 @@ export default {
     ...mapActions('user', ['getMyUser', 'updateUserProfile']),
 
     submitForm() {
-      try {
-        this.updateUserProfile(this.currentPayload)
-      } catch (error) {}
+      if (!this.currentPayload.email) {
+        this.currentPayload.email = localStorage.getItem('email')
+      }
+      this.updateUserProfile(this.currentPayload)
     },
     isImageFile(file) {
       return file.type.startsWith('image/')
@@ -101,7 +103,7 @@ export default {
       const APIURL = 'https://api.imgbb.com/1/upload'
       const URLAPIKEY = '?expiration=600&key=9ce3438bbab9147ab4bd78382ed49383'
       const formData = new FormData()
-      console.log('conv inside' + convertedImage)
+
       formData.append('image', convertedImage)
 
       await this.$axios
@@ -111,8 +113,10 @@ export default {
           },
         })
         .then((response) => {
-          console.log(response.data)
-          this.currentPayload.userprofile.image = response.data.data.url
+          // console.log(response.data)
+          if (response.status === 200) {
+            this.currentPayload.userprofile.image = response.data.data.url
+          }
         })
     },
 

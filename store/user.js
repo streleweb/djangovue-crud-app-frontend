@@ -32,7 +32,17 @@ export const actions = {
     async loginUser({ commit }, userData) {
         await this.$axios.post(this.$axios.defaults.baseURL.concat(LOGINURL),
             userData
-        ).then((response) => commit('login', response.data))
+        ).catch(error => {
+            if (error.response) {
+                if (error.response.data.non_field_errors) {
+                    this.$swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: error.response.data.non_field_errors,
+                    })
+                }
+            }
+        }).then((response) => commit('login', response.data))
     },
     async getUserById({ commit }, id) {
         await this.$axios.get(this.$axios.defaults.baseURL.concat(USERSURL + id),
@@ -68,7 +78,31 @@ export const actions = {
                     'Content-Type': 'Application/json',
                 },
             }
-        ).then(() => commit('setMyUser', payload));
+        ).catch(error => {
+            if (error.response) {
+                console.log(error.response)
+                const errorArray = []
+                if (error.response.data.password) errorArray.push('Password: ' + error.response.data.password + '      ')
+                if (error.response.data.userprofile.first_name) errorArray.push('First name: ' + error.response.data.userprofile.first_name + '      ')
+                if (error.response.data.userprofile.last_name) errorArray.push('Last name: ' + error.response.data.userprofile.last_name + '      ')
+                if (error.response.data.userprofile.image) errorArray.push('Image: ' + error.response.data.userprofile.image)
+                // console.log(error.response.data)
+                // console.log(error.response.status)
+                // console.log(error.response.headers)
+
+
+                this.$swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: errorArray.toString(),
+
+                })
+            }
+
+        }).then((response) => {
+            commit('setMyUser', payload)
+
+        });
     },
 
 

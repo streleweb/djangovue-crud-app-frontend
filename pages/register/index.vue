@@ -10,11 +10,19 @@
             label="Email"
             type="email"
           />
+
           <v-text-field
-            v-model="currentUserRegisterForm.password"
-            label="Password"
-            type="password"
-          />
+            class="mb-2"
+            autocomplete="current-password"
+            :value="currentUserRegisterForm.password"
+            label="Password - required to make changes"
+            hint="Your password passed the strength-test!"
+            :append-icon="value ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="value ? 'password' : 'text'"
+            :rules="[rules.password]"
+            @click:append="() => (value = !value)"
+            @input="(_) => (currentUserRegisterForm.password = _)"
+          ></v-text-field>
           <v-btn type="submit">Register</v-btn>
         </v-form>
       </v-col>
@@ -53,6 +61,19 @@ export default {
         password: '',
       },
       registrationSuccesful: false,
+      valid: true,
+      value: true,
+      rules: {
+        required: (value) => !!value || 'Required.',
+        password: (value) => {
+          const pattern =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/
+          return (
+            pattern.test(value) ||
+            'Min. 8 characters with at least one capital letter, a number and a special character.'
+          )
+        },
+      },
     }
   },
   computed: {

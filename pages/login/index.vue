@@ -35,7 +35,7 @@
       prominent
       border="left"
     >
-      Successfully logged in! Redirecting to TODOS in 5 seconds...
+      Successfully logged in! Redirecting to TODOS in 3 seconds...
     </v-alert>
   </v-container>
 </template>
@@ -59,14 +59,14 @@ export default {
       else return false
     },
   },
-  mounted() {
+  created() {
     if (this.user.isAuthenticated) {
       this.$router.push({ path: '/todos' })
+    } else {
+      this.user.isAuthenticated = false
+      localStorage.removeItem('token')
+      localStorage.removeItem('id')
     }
-    // if (localStorage.getItem('token')) {
-    //   this.user.isAuthenticated = false
-    //   localStorage.removeItem('token')
-    // }
   },
   methods: {
     ...mapActions('user', ['loginUser', 'getMyUser']),
@@ -76,7 +76,7 @@ export default {
         if (this.user.isAuthenticated) {
           this.getMyUser()
           document.getElementById('usercontainer').style.display = 'block'
-          setTimeout(() => this.$router.push({ path: '/todos' }), 5000)
+          setTimeout(() => this.$router.push({ path: '/todos' }), 3000)
         }
       })
     },
