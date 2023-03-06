@@ -226,7 +226,9 @@ export default {
 
       this.patchTaskText(taskDataToSave)
       this.editActive = false
-      location.reload()
+      setTimeout(() => {
+        location.reload()
+      }, 1500)
     },
   },
 }
