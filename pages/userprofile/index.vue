@@ -94,7 +94,20 @@ export default {
       if (!this.currentPayload.email) {
         this.currentPayload.email = localStorage.getItem('email')
       }
+      if (!this.currentPayload.userprofile.image) {
+        this.currentPayload.userprofile.image =
+          localStorage.getItem('imageBase64String')
+      }
       this.updateUserProfile(this.currentPayload)
+      this.$swal.fire({
+        icon: 'success',
+        title: 'User has been updated!',
+        showConfirmButton: false,
+        timer: 2400,
+      })
+      setTimeout(() => {
+        location.reload()
+      }, 2400)
     },
     isImageFile(file) {
       return file.type.startsWith('image/')
@@ -127,6 +140,8 @@ export default {
       reader.onloadend = () => {
         // strip off mime
         convertedFile = reader.result.split(',')[1]
+        // save Base64 String to localStorage for client side use
+        localStorage.setItem('imageBase64String', convertedFile)
         this.postImageToExternalAPI(convertedFile)
       }
       reader.readAsDataURL(file)

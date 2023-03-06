@@ -35,7 +35,7 @@
       prominent
       border="left"
     >
-      Successfully logged in! Redirecting to TODOS in 3 seconds...
+      Successfully logged in! Redirecting to TODOS...
     </v-alert>
   </v-container>
 </template>
@@ -76,7 +76,7 @@ export default {
         if (this.user.isAuthenticated) {
           this.getMyUser()
           document.getElementById('usercontainer').style.display = 'block'
-          setTimeout(() => this.$router.push({ path: '/todos' }), 3000)
+          setTimeout(() => this.$router.push({ path: '/todos' }), 2000)
         }
       })
     },

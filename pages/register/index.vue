@@ -15,7 +15,7 @@
             class="mb-2"
             autocomplete="current-password"
             :value="currentUserRegisterForm.password"
-            label="Password - required to make changes"
+            label="Set a password"
             hint="Your password passed the strength-test!"
             :append-icon="value ? 'mdi-eye' : 'mdi-eye-off'"
             :type="value ? 'password' : 'text'"
@@ -23,7 +23,7 @@
             @click:append="() => (value = !value)"
             @input="(_) => (currentUserRegisterForm.password = _)"
           ></v-text-field>
-          <v-btn type="submit">Register</v-btn>
+          <v-btn :disabled="!validPw" type="submit">Register</v-btn>
         </v-form>
       </v-col>
     </v-row>
@@ -61,15 +61,16 @@ export default {
         password: '',
       },
       registrationSuccesful: false,
-      valid: true,
+      validPw: false,
       value: true,
       rules: {
         required: (value) => !!value || 'Required.',
         password: (value) => {
           const pattern =
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/
+          this.validPw = pattern.test(value)
           return (
-            pattern.test(value) ||
+            this.validPw ||
             'Min. 8 characters with at least one capital letter, a number and a special character.'
           )
         },
