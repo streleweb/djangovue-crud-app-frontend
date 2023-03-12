@@ -1,10 +1,12 @@
 <template>
   <v-app dark>
     <v-app-bar :clipped-left="clipped" fixed app>
-      <v-toolbar-title class="mr-15">{{ title }}</v-toolbar-title>
+      <v-toolbar-title class="mr-15 hidden-xs-only">{{
+        title
+      }}</v-toolbar-title>
       <v-text-field
         v-model="searchString"
-        class="mr-15"
+        class="d-flex justify-end mr-md-15"
         dense
         outlined
         background-color="white"
@@ -158,6 +160,10 @@ export default {
 .resize {
   width: 40px;
   height: 40px;
+}
+
+.fixwidth{
+  width: 400px;
 }
 </style>
 
