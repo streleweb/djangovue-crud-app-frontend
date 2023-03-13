@@ -1,4 +1,4 @@
-# djangovue-frontend
+# todo-app
 
 ## Build Setup
 
