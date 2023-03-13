@@ -21,15 +21,19 @@
           />
           <v-text-field
             v-model="currentPayload.userprofile.first_name"
-            label="First Name - required Field"
+            label="First Name"
+            :rules="[(v) => !!v || 'Field is required']"
           ></v-text-field>
           <v-text-field
             v-model="currentPayload.userprofile.last_name"
-            label="Last Name - required Field"
+            label="Last Name"
+            :rules="[(v) => !!v || 'Field is required']"
           ></v-text-field>
           <v-text-field
             v-model="currentPayload.password"
+            class="mb-2"
             label="Password - required to make changes"
+            :rules="[(v) => !!v || 'Field is required']"
             type="password"
           />
 
@@ -98,6 +102,13 @@ export default {
         this.currentPayload.userprofile.image =
           localStorage.getItem('imageBase64String')
       }
+      this.currentPayload.userprofile.first_name = this.$sanitizeString(
+        this.currentPayload.userprofile.first_name
+      )
+      this.currentPayload.userprofile.first_name = this.$sanitizeString(
+        this.currentPayload.userprofile.last_name
+      )
+
       this.updateUserProfile(this.currentPayload)
       this.$swal.fire({
         icon: 'success',

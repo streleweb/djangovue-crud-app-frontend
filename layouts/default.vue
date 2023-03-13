@@ -6,7 +6,7 @@
       }}</v-toolbar-title>
       <v-text-field
         v-model="searchString"
-        class="d-flex justify-end mr-md-15"
+        class="d-flex justify-end mr-1 mr-md-15"
         dense
         outlined
         background-color="white"
@@ -162,7 +162,7 @@ export default {
   height: 40px;
 }
 
-.fixwidth{
+.fixwidth {
   width: 400px;
 }
 </style>

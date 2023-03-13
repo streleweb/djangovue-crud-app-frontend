@@ -11,6 +11,7 @@
           v-model="newTask.title"
           name="taskfield"
           label="Enter a task (hit enter-key)"
+          maxlength="70"
           @input="(event) => (newTaskFieldActive = true)"
           @keypress.enter="addTask()"
         ></v-text-field>
@@ -75,9 +76,10 @@
                   >
                     <v-text-field
                       v-model="editingTask.title"
-                      name="name"
+                      name="taskinputfield"
                       label="Taskname"
                       append-outer-icon="mdi-check"
+                      maxlength="70"
                       @click:append-outer="saveEdit()"
                       @keypress.enter="saveEdit()"
                     ></v-text-field>
@@ -85,12 +87,9 @@
                       >mdi-cancel</v-icon
                     >
                   </span>
-                  <span
-                    v-else
-                    class="d-flex justify-space-between align-center"
-                  >
-                    {{ task.title }}
-                    <span>
+                  <div v-else class="d-flex justify-space-between align-center">
+                    <span style="text-align: left">{{ task.title }}</span>
+                    <div class="d-flex justify-center align-content-center">
                       <v-icon title="edit task" @click.stop="editTask(i)"
                         >mdi-pencil</v-icon
                       >
@@ -109,8 +108,8 @@
                         title="priority"
                         text-color="white"
                       />
-                    </span>
-                  </span>
+                    </div>
+                  </div>
                 </v-list-item-content>
               </template>
             </v-list-item>
@@ -200,6 +199,7 @@ export default {
       this.patchTask(taskFromState)
     },
     addTask() {
+      this.newTask.title = this.sanitizeInput(this.newTask.title)
       this.postNewTask(this.newTask)
       this.newTask.title = ''
       this.newTaskFieldActive = false
@@ -218,7 +218,11 @@ export default {
       this.editingTask = {}
       this.editActive = false
     },
+    sanitizeInput(inputString) {
+      return this.$sanitizeString(inputString)
+    },
     saveEdit() {
+      this.editingTask.title = this.sanitizeInput(this.editingTask.title)
       const taskDataToSave = {
         id: this.editingTask.id,
         taskData: this.editingTask,
