@@ -42,7 +42,9 @@ export const actions = {
                     })
                 }
             }
-        }).then((response) => commit('login', response.data))
+        }).then((response) => {
+            if (response) commit('login', response.data)
+        })
     },
     async getUserById({ commit }, id) {
         await this.$axios.get(this.$axios.defaults.baseURL.concat(USERSURL + id),
